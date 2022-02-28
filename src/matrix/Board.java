@@ -50,22 +50,12 @@ public class Board {
     }
 
     public boolean checkWin() {
-
         // Vertical Check
         for (int col = 0; col < Const.BOARD_DIM; col++) {
-            int matchCount = 1;
-            for (int row = 0; row < Const.BOARD_DIM - 1; row++) {
-                if (board[row][col] == '0') {
-                    break;
-                }
-                if (board[row][col] == board[row+1][col]) {
-                    matchCount++;
-                }
-                else {
-                    matchCount = 1;
-                }
-
-                if (matchCount == Const.TO_WIN) {
+            for (int row = 0; row < Const.BOARD_DIM - (Const.TO_WIN - 1); row++) {
+                if (board[row][col] != '0' && board[row][col] == board[row+1][col] && 
+                    board[row+1][col] == board[row+2][col] && 
+                    board[row+2][col] == board[row+3][col]) {
                     return true;
                 }
             }
@@ -73,92 +63,36 @@ public class Board {
 
         // Horizontal Check
         for (int row = 0; row < Const.BOARD_DIM; row++) {
-            int matchCount = 1;
-            for (int col = 0; col < Const.BOARD_DIM-1; col++) {
-                if (board[row][col] == '0' || board[row][col] != board[row][col+1]) {
-                    matchCount = 1;
-                    continue;
-                }
-                else if (board[row][col] == board[row][col+1]) {
-                    matchCount++;
-                }
-                
-                if (Const.TO_WIN - matchCount > Const.BOARD_DIM - col - 1) {
-                    break;
-                }
-
-                if (matchCount == Const.TO_WIN) {
+            for (int col = 0; col < Const.BOARD_DIM - (Const.TO_WIN - 1); col++) {
+                if (board[row][col] != '0' && board[row][col] == board[row][col+1] && 
+                    board[row][col+1] == board[row][col+2] && 
+                    board[row][col+2] == board[row][col+3]) {
                     return true;
                 }
             }
         }
-        
-        // Descending Diagonal
-        for (int rowStart = Const.TO_WIN - 1; rowStart < Const.BOARD_DIM; rowStart++) {
-            int matchCount = 1;
-            int col = 0;
-            for (int row = rowStart; row > 0 && col < Const.BOARD_DIM-1; col++, row--) {
-                if (board[row][col] != '0' && board[row][col] == board[row-1][col+1]) {
-                    matchCount++;
-                    if (matchCount == Const.TO_WIN) {
-                        return true;
-                    }
-                }
-                else {
-                    matchCount = 1;
+
+        // Ascending Diagonal Check
+        for (int row = 0; row <= Const.BOARD_DIM - (Const.TO_WIN); row++) {
+            for (int col = 0; col <= Const.BOARD_DIM - (Const.TO_WIN); col++) {
+                if (board[row][col] != '0' && board[row][col] == board[row+1][col+1] && 
+                    board[row+1][col+1] == board[row+2][col+2] && 
+                    board[row+2][col+2] == board[row+3][col+3]) {
+                    return true;
                 }
             }
         }
 
-        for (int colStart = 1; colStart <= Const.BOARD_DIM - Const.TO_WIN; colStart++) {
-            int matchCount = 1;
-            int row = 0;
-            for (int col = colStart; row > 0 && col < Const.BOARD_DIM-1; col++, row--) {
-                if (board[row][col] != '0' && board[row][col] == board[row-1][col+1]) {
-                    matchCount++;
-                    if (matchCount == Const.TO_WIN) {
-                        return true;
-                    }
-                }
-                else {
-                    matchCount = 1;
+        // Decending Diagonal Check
+        for (int row = Const.BOARD_DIM - 1; row >= Const.BOARD_DIM - (Const.TO_WIN); row--) {
+            for (int col = 0; col <= Const.BOARD_DIM - (Const.TO_WIN); col++) {
+                if (board[row][col] != '0' && board[row][col] == board[row-1][col+1] && 
+                    board[row-1][col+1] == board[row-2][col+2] && 
+                    board[row-2][col+2] == board[row-3][col+3]) {
+                    return true;
                 }
             }
         }
-
-        // Ascending Diagonal
-        for (int rowStart = 0; rowStart <= Const.BOARD_DIM - Const.TO_WIN; rowStart++) {
-            int matchCount = 1;
-            int col = 0;
-            for (int row = rowStart; row < Const.BOARD_DIM-1 && col < Const.BOARD_DIM-1; row++, col++) {
-                if (board[row][col] != '0' && board[row][col] == board[row+1][col+1]) {
-                    matchCount++;
-                    if (matchCount == Const.TO_WIN) {
-                        return true;
-                    }
-                }
-                else {
-                    matchCount = 1;
-                }
-            }
-        }
-
-        for (int colStart = 1; colStart <= Const.BOARD_DIM - Const.TO_WIN; colStart++) {
-            int matchCount = 1;
-            int row = 0;
-            for (int col = colStart; row < Const.BOARD_DIM-1 && col < Const.BOARD_DIM-1; row++, col++) {
-                if (board[row][col] != '0' && board[row][col] == board[row+1][col+1]) {
-                    matchCount++;
-                    if (matchCount == Const.TO_WIN) {
-                        return true;
-                    }
-                }
-                else {
-                    matchCount = 1;
-                }
-            }
-        }
-
         return false;
     }
 
