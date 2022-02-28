@@ -1,4 +1,3 @@
-import java.io.EOFException;
 import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -17,6 +16,7 @@ public class Connect_4 {
         boolean fullColumnMove = false;
         boolean errorMove = false;
         boolean invalidCol = false;
+        boolean gameOver = false;
 
         String errRead = "";
         while(true) {
@@ -34,6 +34,10 @@ public class Connect_4 {
                 System.out.printf("%d is not a valid column number\n", playerMove);
                 invalidCol = false;
             }
+            if (gameOver) {
+                System.out.println("Player " + Const.PLAYERS[currPlayer] + " Wins!");
+                break;
+            }
 
             System.out.println("Player " + Const.PLAYERS[currPlayer] +
                                 " pick a column!");
@@ -46,6 +50,9 @@ public class Connect_4 {
                     errRead = "";
                 }
                 else if (b.playColumn(playerMove - 1, Const.PLAYER_SYMBOLS[currPlayer])) {
+                    if (gameOver = b.checkWin()) {
+                        continue;
+                    }
                     currPlayer = (currPlayer + 1) % Const.PLAYERS.length;
                 }
                 else {
