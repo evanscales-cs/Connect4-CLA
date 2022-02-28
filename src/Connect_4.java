@@ -6,24 +6,23 @@ import constants.Const;
 import matrix.Board;
 
 public class Connect_4 {
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         Board b = new Board();
-
         Scanner userInput = new Scanner(System.in);
 
         int currPlayer = 0;
-        int playerMove = 0;
+        int playerColumnMove = 0;
         boolean fullColumnMove = false;
         boolean errorMove = false;
         boolean invalidCol = false;
         boolean gameOver = false;
-
         String errRead = "";
-        while(true) {
+
+        while (true) {
             System.out.println(b.toString());
 
             if (fullColumnMove) {
-                System.out.printf("Column %d is filled\n", playerMove);
+                System.out.printf("Column %d is filled\n", playerColumnMove);
                 fullColumnMove = false;
             }
             if (errorMove) {
@@ -31,7 +30,7 @@ public class Connect_4 {
                 errorMove = false;
             }
             if (invalidCol) {
-                System.out.printf("%d is not a valid column number\n", playerMove);
+                System.out.printf("%d is not a valid column number\n", playerColumnMove);
                 invalidCol = false;
             }
             if (gameOver) {
@@ -40,21 +39,24 @@ public class Connect_4 {
             }
 
             System.out.println("Player " + Const.PLAYERS[currPlayer] +
-                                " pick a column!");
-            
-            try {
-                playerMove = userInput.nextInt();
+                    " pick a column!");
 
-                if (playerMove > 7 || playerMove <= 0) {
+            try {
+                playerColumnMove = userInput.nextInt();
+                int rowPlayed = -1;
+                if (playerColumnMove > Const.BOARD_DIM || playerColumnMove <= 0) {
                     invalidCol = true;
-                    errRead = "";
                 }
-                else if (b.playColumn(playerMove - 1, Const.PLAYER_SYMBOLS[currPlayer])) {
-                    if (gameOver = b.checkWin()) {
+                // A Playable row is found and used
+                else if ((rowPlayed = b.getPlayableRow(playerColumnMove - 1)) != -1) {
+                    gameOver = b.playPiece(rowPlayed, playerColumnMove - 1,
+                            Const.PLAYER_SYMBOLS[currPlayer]);
+                    if (gameOver) {
                         continue;
                     }
                     currPlayer = (currPlayer + 1) % Const.PLAYERS.length;
                 }
+                // If a playable row is unavailable an error msg is shown
                 else {
                     fullColumnMove = true;
                 }
@@ -63,14 +65,11 @@ public class Connect_4 {
             catch (InputMismatchException e) {
                 errRead = userInput.nextLine();
                 errorMove = true;
-            }
-            catch (NoSuchElementException e) {
+            } catch (NoSuchElementException e) {
                 System.out.println("CLOSING...");
                 break;
             }
-
         }
         userInput.close();
-
     }
 }
