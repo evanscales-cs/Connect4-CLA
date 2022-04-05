@@ -74,7 +74,7 @@ public class Board {
      *         the number needed to win, otherwise returns false
      */
     public boolean checkWin(final int row, final int col) {
-        int connected = checkPiecesConnected(row, col, 0, 0);
+        int connected = checkPiecesConnected(row, col);
         if (connected >= Const.TO_WIN) {
             return true;
         }
@@ -82,103 +82,110 @@ public class Board {
     }
 
     /**
-     * -4 1 2
-     * -3 X 3
-     * -2-1 4
-     * Finds the maximum number of same-color pieces connected in a single
-     * direction. these pieces will all be connected to the last piece placed
-     * on the board.
+     * Iteratively finds the maximum number of same-color pieces connected in a 
+     * single direction. These pieces will all be connected to the last piece 
+     * placed on the board.
      * 
      * @param row row index of the last placed game piece
      * @param col column index of the last placed game piece
-     * @param dir direction of the recursive checks
      * @return maxiumn number of same-color pieces connected to the placed piece
      *         in one particular direction.
      */
-    public int checkPiecesConnected(final int row, final int col, final int dir,
-                                    final int matchLen) {
-        if (dir == 0) {
-            int diagAscendCount = 1;
-            int diagDescendCount = 1;
-            int horizCount = 1;
-            int vertCount = 1;
+    public int checkPiecesConnected(final int row, final int col) {
 
-            // Vertical Branch
-            if (row >= Const.TO_WIN - 1 && board[row][col] == board[row - 1][col]) {
-                int connected = checkPiecesConnected(row - 1, col, -1, matchLen + 1);
-                vertCount += connected;
+        char currColor = board[row][col];
+
+        boolean down = true, left = true, right = true;
+        boolean rightAscend = true, leftAscend = true, leftDescend = true, rightDescend = true;
+
+        int diagAscendCount = 1;
+        int diagDescendCount = 1;
+        int horizCount = 1;
+        int vertCount = 1;
+
+        for (int i = 1 ; i < Const.TO_WIN; i++) {
+
+            // Vertical Check
+            if (down && row - i >= 0 ) {
+                if (currColor == board[row - i][col]) {
+                    vertCount++;
+                    if (vertCount >= Const.TO_WIN) {
+                        return vertCount;
+                    }
+                }
+                else {
+                    down = false;
+                }
             }
 
-            // Ascending Diagonal Branch
-            if (row < Const.BOARD_DIM - 1 && col < Const.BOARD_DIM - 1
-                    && board[row][col] == board[row + 1][col + 1]) {
-                diagAscendCount += checkPiecesConnected(row + 1, col + 1, 2, matchLen + 1);
+            // Left Horizontal Check
+            if (left && col - i >= 0) {
+                if (currColor == board[row][col - i]) {
+                    horizCount++;
+                    if (horizCount == Const.TO_WIN) {
+                        return horizCount;
+                    }
+                }
+                else left = false;
             }
 
-            if (row > 0 && col > 0 && board[row][col] == board[row - 1][col - 1]) {
-                diagAscendCount += checkPiecesConnected(row - 1, col - 1, -2, matchLen + 1);
+            // Right Horizontal Check
+            if (right && col + i < Const.BOARD_DIM) {
+                if (currColor == board[row][col + i]) {
+                    horizCount++;
+                    if (horizCount == Const.TO_WIN) {
+                        return horizCount;
+                    }
+                }
+                else right = false;
             }
 
-            // Horizontal Branch
-            if (col < Const.BOARD_DIM - 1 && board[row][col] == board[row][col + 1]) {
-                horizCount += checkPiecesConnected(row, col + 1, 3, matchLen + 1);
+            // Left Descend Check
+            if (leftDescend && row + i < Const.BOARD_DIM && col - i >= 0) {
+                if (currColor == board[row + i][col - i]) {
+                    diagDescendCount++;
+                    if(diagDescendCount == Const.TO_WIN) { 
+                        return diagDescendCount;
+                    }
+                }
+                else leftDescend = false;
             }
 
-            if (col > 0 && board[row][col] == board[row][col - 1]) {
-                horizCount += checkPiecesConnected(row, col - 1, -3, matchLen + 1);
+            // Right Descend Check
+            if (rightDescend && row - i >= 0 && col + i < Const.BOARD_DIM) {
+                if (currColor == board[row - i][col + i]) {
+                    diagDescendCount++;
+                    if(diagDescendCount == Const.TO_WIN) { 
+                        return diagDescendCount;
+                    }
+                }
+                else rightDescend = false;
             }
 
-            // Descending Diagonal Branch
-            if (row < Const.BOARD_DIM - 1 && col > 0
-                    && board[row][col] == board[row + 1][col - 1]) {
-                diagDescendCount += checkPiecesConnected(row + 1, col - 1, 4, matchLen + 1);
+            // Right Ascend Check
+            if (rightAscend && col + i < Const.BOARD_DIM && row + i < Const.BOARD_DIM) {
+                if (currColor == board[col + i][row + i]) {
+                    diagAscendCount++;
+                    if(diagAscendCount == Const.TO_WIN) {
+                        return diagAscendCount;
+                    }
+                }
+                else rightAscend = false;
             }
 
-            if (row > 0 && col < Const.BOARD_DIM - 1
-                    && board[row][col] == board[row - 1][col + 1]) {
-                diagDescendCount += checkPiecesConnected(row - 1, col + 1, -4, matchLen + 1);
+            // Left Ascend Check  
+            if (leftAscend && col - i >= 0 && row - i >= 0) {
+                if (currColor == board[col - i][row - i]) {
+                    diagAscendCount++;
+                    if(diagAscendCount == Const.TO_WIN) {
+                        return diagAscendCount;
+                    }
+                }
+                else leftAscend = false;
             }
-
-            return Math.max(Math.max(vertCount, horizCount),
-                    Math.max(diagAscendCount, diagDescendCount));
         }
 
-        // Vertical Branch
-        if (dir == -1 && row > 0 && board[row][col] == board[row - 1][col]) {
-            return checkPiecesConnected(row - 1, col, -1, matchLen + 1);
-        }
-
-        // Ascending Diagonal Branch
-        if (dir == 2 && row < Const.BOARD_DIM - 1 && col < Const.BOARD_DIM - 1
-                && board[row][col] == board[row + 1][col + 1]) {
-            return checkPiecesConnected(row + 1, col + 1, 2, matchLen + 1);
-        }
-
-        if (dir == -2 && row > 0 && col > 0 && board[row][col] == board[row - 1][col - 1]) {
-            return checkPiecesConnected(row - 1, col - 1, -2, matchLen + 1);
-        }
-
-        // Horizontal Branch
-        if (dir == 3 && col < Const.BOARD_DIM - 1 && board[row][col] == board[row][col + 1]) {
-            return checkPiecesConnected(row, col + 1, 3, matchLen + 1);
-        }
-
-        if (dir == -3 && col > 0 && board[row][col] == board[row][col - 1]) {
-            return checkPiecesConnected(row, col - 1, -3, matchLen + 1);
-        }
-
-        // Descending Diagonal Branch
-        if (dir == 4 && row < Const.BOARD_DIM - 1 && col > 0
-                && board[row][col] == board[row + 1][col - 1]) {
-            return checkPiecesConnected(row + 1, col - 1, 4, matchLen + 1);
-        }
-
-        if (dir == -4 && row > 0 && col < Const.BOARD_DIM - 1
-                && board[row][col] == board[row - 1][col + 1]) {
-            return checkPiecesConnected(row - 1, col + 1, -4, matchLen + 1);
-        }
-
-        return matchLen;
+        return 0;
     }
 
     /**
